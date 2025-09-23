@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_bottomsheet">
+
+    <!-- ScrollView chứa nội dung -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <!-- Time Picker -->
+            <TimePicker
+                android:id="@+id/timePicker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:timePickerMode="clock"
+                android:layout_marginBottom="24dp" />
+
+            <!-- Chọn ngày lặp -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="8dp">
+
+                <ToggleButton
+                    android:id="@+id/tbT2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textOn="T2"
+                    android:textOff="T2"
+                    android:background="@drawable/toggle_day_background"
+                    android:textColor="@color/mautrangnhathon"
+                    android:padding="8dp"/>
+
+                <ToggleButton
+                    android:id="@+id/tbT3"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textOn="T3"
+                    android:textOff="T3"
+                    android:background="@drawable/toggle_day_background"
+                    android:textColor="@color/mautrangnhathon"
+                    android:padding="8dp"/>
+
+                <ToggleButton
+                    android:id="@+id/tbT4"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textOn="T4"
+                    android:textOff="T4"
+                    android:background="@drawable/toggle_day_background"
+                    android:textColor="@color/mautrangnhathon"
+                    android:padding="8dp"/>
+
+                <ToggleButton
+                    android:id="@+id/tbT5"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textOn="T5"
+                    android:textOff="T5"
+                    android:background="@drawable/toggle_day_background"
+                    android:textColor="@color/mautrangnhathon"
+                    android:padding="8dp"/>
+
+                <ToggleButton
+                    android:id="@+id/tbT6"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textOn="T6"
+                    android:textOff="T6"
+                    android:background="@drawable/toggle_day_background"
+                    android:textColor="@color/mautrangnhathon"
+                    android:padding="8dp"/>
+
+                <ToggleButton
+                    android:id="@+id/tbT7"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textOn="T7"
+                    android:textOff="T7"
+                    android:background="@drawable/toggle_day_background"
+                    android:textColor="@color/mautrangnhathon"
+                    android:padding="8dp"/>
+
+                <ToggleButton
+                    android:id="@+id/tbCN"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textOn="CN"
+                    android:textOff="CN"
+                    android:background="@drawable/toggle_day_background"
+                    android:textColor="@color/mautrangnhathon"
+                    android:padding="8dp"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Nút Lưu ở góc dưới bên phải -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cvLuu"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="20dp"
+        app:strokeColor="@android:color/transparent"
+        android:backgroundTint="@color/green_dark"
+        android:foreground="?attr/selectableItemBackgroundBorderless"
+        >
+
+        <ImageView
+            android:id="@+id/imgLuu"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="16dp"
+            android:src="@drawable/save"
+            app:tint="@color/mautrangnhathon"
+            android:contentDescription="Lưu" />
+    </com.google.android.material.card.MaterialCardView>
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cvXoa"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_gravity="bottom|start"
+        android:layout_margin="20dp"
+        app:strokeColor="@android:color/transparent"
+        android:backgroundTint="@color/red_soft_medium2"
+        android:foreground="?attr/selectableItemBackgroundBorderless"
+        >
+
+        <ImageView
+            android:id="@+id/imgXoa"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="16dp"
+            android:src="@drawable/xoa"
+            app:tint="@color/mautrangnhathon"
+            android:contentDescription="Lưu" />
+    </com.google.android.material.card.MaterialCardView>
+</FrameLayout>
