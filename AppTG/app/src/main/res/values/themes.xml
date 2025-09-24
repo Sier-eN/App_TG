@@ -3,7 +3,34 @@
     <style name="Base.Theme.AppTG" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowBackground">@color/black</item>
+        <item name="android:statusBarColor">@color/maunensanghon</item>
     </style>
-
+    
     <style name="Theme.AppTG" parent="Base.Theme.AppTG" />
+    
+    <style name="CalendarOfWeek">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">14dp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/mautrangnhathon</item>
+        <item name="fontFamily">@font/robotocondensed</item>
+    </style>
+    <style name="CalendarDate">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_columnWeight">1</item>
+        <item name="android:layout_rowWeight">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">14dp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:paddingVertical">10dp</item>
+        <item name="android:textColor">@color/mautrangnhathon</item>
+        <item name="android:background">@drawable/date_background_selector</item>
+        <item name="fontFamily">@font/robotocondensed</item>
+    </style>
 </resources>

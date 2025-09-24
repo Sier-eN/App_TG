@@ -1,5 +1,6 @@
 package javaclass;
 
+import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -31,6 +32,7 @@ public class AlarmService extends Service {
         createNotificationChannel();
     }
 
+    @SuppressLint("ForegroundServiceType")
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         int alarmId = intent.getIntExtra("id", 0);

@@ -28,8 +28,7 @@ public class BaothucFragment extends Fragment {
     private BaoThucAdapter adapter;
     private DatabaseHelper dbHelper;
     private List<BaoThuc> baoThucList;
-
-    public BaothucFragment() { }
+    private ThemBaoThucBottomSheet bottomSheet; // reuse
 
     @Nullable
     @Override
@@ -38,39 +37,36 @@ public class BaothucFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_baothuc, container, false);
 
-        // Ánh xạ
         rvBaoThuc = view.findViewById(R.id.rv_baothuc);
         ivAdd = view.findViewById(R.id.img_add);
 
-        // Database
         dbHelper = new DatabaseHelper(getContext());
         baoThucList = dbHelper.getAllBaoThuc();
 
-        // Adapter
         adapter = new BaoThucAdapter(getContext(), baoThucList);
         rvBaoThuc.setLayoutManager(new LinearLayoutManager(getContext()));
         rvBaoThuc.setAdapter(adapter);
 
-        // Nút thêm báo thức
+        // Tạo 1 instance BottomSheet dùng chung
+        bottomSheet = ThemBaoThucBottomSheet.newInstance();
+
         ivAdd.setOnClickListener(v -> {
-            ThemBaoThucBottomSheet bottomSheet = new ThemBaoThucBottomSheet();
+            bottomSheet.setBaoThuc(null); // Thêm mới
             bottomSheet.show(getParentFragmentManager(), "ThemBaoThucBottomSheet");
-
-            // Lắng nghe khi BottomSheet đóng và refresh dữ liệu
-            getParentFragmentManager().setFragmentResultListener("refresh_baothuc", this, (requestKey, bundle) -> refreshData());
         });
+
         adapter.setOnItemClickListener(baoThuc -> {
-            ThemBaoThucBottomSheet bottomSheet = new ThemBaoThucBottomSheet();
-            bottomSheet.setBaoThuc(baoThuc); // truyền dữ liệu báo thức cần sửa
+            bottomSheet.setBaoThuc(baoThuc); // sửa
             bottomSheet.show(getParentFragmentManager(), "ThemBaoThucBottomSheet");
-
-            getParentFragmentManager().setFragmentResultListener("refresh_baothuc", this,
-                    (requestKey, bundle) -> refreshData());
         });
 
+        // Lắng nghe refresh dữ liệu chung
+        getParentFragmentManager().setFragmentResultListener(
+                "refresh_baothuc", this,
+                (requestKey, bundle) -> refreshData()
+        );
 
         return view;
-
     }
 
     private void refreshData() {
@@ -78,13 +74,5 @@ public class BaothucFragment extends Fragment {
         baoThucList.addAll(dbHelper.getAllBaoThuc());
         adapter.notifyDataSetChanged();
     }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        View view = getView();
-        if (view != null) {
-            view.setBackgroundResource(R.drawable.bg_bottomsheet);
-        }
-    }
 }
+

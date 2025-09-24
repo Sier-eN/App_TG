@@ -33,7 +33,7 @@ public class BaoThucActivity extends AppCompatActivity {
     private Button btnStop, btnSnooze;
     private Ringtone ringtone;
     private BaoThuc baoThuc;
-
+    private Vibrator vibrator;
     private static final int PERMISSION_REQUEST_CODE = 1001;
 
     @Override
@@ -62,8 +62,7 @@ public class BaoThucActivity extends AppCompatActivity {
                         PERMISSION_REQUEST_CODE);
             }
         }
-
-        playAlarmSound();
+        
         vibratePhone();
 
         btnStop.setOnClickListener(v -> stopAlarm());
@@ -94,26 +93,24 @@ public class BaoThucActivity extends AppCompatActivity {
     }
 
     private void vibratePhone() {
-        Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+        vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         if (vibrator != null) {
             long[] pattern = {0, 500, 500, 500};
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vibrator.vibrate(VibrationEffect.createWaveform(pattern, 0));
+                vibrator.vibrate(VibrationEffect.createWaveform(pattern, 0)); // 0 = lặp vô hạn
             } else {
                 vibrator.vibrate(pattern, 0);
             }
         }
     }
 
+
     private void stopAlarm() {
-        // Dừng nhạc
         if (ringtone != null && ringtone.isPlaying()) ringtone.stop();
+        if (vibrator != null) vibrator.cancel(); // <-- Hủy rung
 
-        // Dừng service
-        Intent serviceIntent = new Intent(this, AlarmService.class);
-        stopService(serviceIntent);
+        stopService(new Intent(this, AlarmService.class));
 
-        // Hủy báo thức hiện tại
         if (baoThuc != null) {
             javaclass.AlarmCanceler.huyBaoThuc(this, baoThuc);
         }
@@ -138,5 +135,6 @@ public class BaoThucActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         if (ringtone != null && ringtone.isPlaying()) ringtone.stop();
+        if (vibrator != null) vibrator.cancel(); // <-- Hủy rung
     }
 }
