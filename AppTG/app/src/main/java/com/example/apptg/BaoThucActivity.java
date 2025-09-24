@@ -120,7 +120,10 @@ public class BaoThucActivity extends AppCompatActivity {
 
 
     private void snoozeAlarm() {
-        if (ringtone != null && ringtone.isPlaying()) ringtone.stop();
+        // Dừng chuông & rung trong service
+        stopService(new Intent(this, AlarmService.class));
+
+        // Thiết lập báo lại 5 phút
         if (baoThuc != null) {
             Calendar cal = Calendar.getInstance();
             cal.add(Calendar.MINUTE, 5);
@@ -128,8 +131,11 @@ public class BaoThucActivity extends AppCompatActivity {
             baoThuc.setM(cal.get(Calendar.MINUTE));
             AlarmScheduler.datBaoThuc(this, baoThuc);
         }
+
         finish();
     }
+
+
 
     @Override
     protected void onDestroy() {
