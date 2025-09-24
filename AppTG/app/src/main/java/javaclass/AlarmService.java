@@ -16,7 +16,6 @@ import android.os.Vibrator;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 
 import com.example.apptg.BaoThucActivity;
 import com.example.apptg.R;
@@ -36,24 +35,34 @@ public class AlarmService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         int alarmId = intent.getIntExtra("id", 0);
+        String ringtoneUriString = intent.getStringExtra("ringtoneUri");
 
-        // Phát nhạc chuông
-        Uri alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-        if (alarmUri == null) alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        ringtone = RingtoneManager.getRingtone(this, alarmUri);
-        ringtone.play();
+        Uri alarmUri = null;
+        if (ringtoneUriString != null && !ringtoneUriString.isEmpty()) {
+            alarmUri = Uri.parse(ringtoneUriString);
+        }
+        if (alarmUri == null) {
+            alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+            if (alarmUri == null) alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        }
 
-        // Rung điện thoại
+        try {
+            ringtone = RingtoneManager.getRingtone(this, alarmUri);
+            if (ringtone != null) ringtone.play();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         if (vibrator != null) {
+            long[] pattern = {0, 500, 500, 500};
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vibrator.vibrate(VibrationEffect.createWaveform(new long[]{0, 500, 500, 500}, 0));
+                vibrator.vibrate(VibrationEffect.createWaveform(pattern, 0));
             } else {
-                vibrator.vibrate(new long[]{0, 500, 500, 500}, 0);
+                vibrator.vibrate(pattern, 0);
             }
         }
 
-        // Notification mở Activity khi click
         Intent activityIntent = new Intent(this, BaoThucActivity.class);
         activityIntent.putExtra("id", alarmId);
         activityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -83,6 +92,7 @@ public class AlarmService extends Service {
         if (ringtone != null && ringtone.isPlaying()) {
             ringtone.stop();
         }
+        ringtone = null;
     }
 
     @Nullable

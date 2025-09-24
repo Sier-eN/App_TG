@@ -18,9 +18,13 @@ public class BaoThucReceiver extends BroadcastReceiver {
         BaoThuc baoThuc = dbHelper.getBaoThucById(alarmId);
         if (baoThuc == null || baoThuc.getBat() == 0) return;
 
+        // Lấy URI nhạc chuông từ báo thức
+        String ringtoneUri = baoThuc.getRingtoneUri();
+
         // Bật AlarmService để chơi nhạc + rung + notification
         Intent serviceIntent = new Intent(context, AlarmService.class);
         serviceIntent.putExtra("id", alarmId);
+        serviceIntent.putExtra("ringtoneUri", ringtoneUri); // thêm URI nhạc chuông
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             context.startForegroundService(serviceIntent);

@@ -47,12 +47,29 @@ public class BaoThucAdapter extends RecyclerView.Adapter<BaoThucAdapter.BaoThucV
         holder.tvTime.setText(baoThuc.getTimeString());
 
         // Hiển thị ngày lặp
-        int sumDays = baoThuc.getT2() + baoThuc.getT3() + baoThuc.getT4() +
-                baoThuc.getT5() + baoThuc.getT6() + baoThuc.getT7() + baoThuc.getCn();
-        if (sumDays == 7) {
-            holder.tvRepeat.setText("Hằng ngày");
+        int[] ngayTrongTuan = {baoThuc.getT2(), baoThuc.getT3(), baoThuc.getT4(),
+                baoThuc.getT5(), baoThuc.getT6(), baoThuc.getT7(), baoThuc.getCn()};
+        String[] tenThu = {"T2", "T3", "T4", "T5", "T6", "T7", "CN"};
+
+        final boolean[] anySelected = {false};
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 7; i++) {
+            if (ngayTrongTuan[i] == 1) {
+                if (sb.length() > 0) sb.append(", ");
+                sb.append(tenThu[i]);
+                anySelected[0] = true;
+            }
+        }
+
+        if (anySelected[0]) {
+            holder.tvRepeat.setText(sb.toString());
         } else {
-            holder.tvRepeat.setText(baoThuc.getRepeatString());
+            // Nếu bật và không chọn ngày, mặc định hôm nay
+            if (baoThuc.isActive()) {
+                holder.tvRepeat.setText("Hôm nay");
+            } else {
+                holder.tvRepeat.setText("Không lặp");
+            }
         }
 
         // Switch bật/tắt
@@ -74,6 +91,13 @@ public class BaoThucAdapter extends RecyclerView.Adapter<BaoThucAdapter.BaoThucV
             } else {
                 AlarmCanceler.huyBaoThuc(context, baoThuc);
             }
+
+            // Cập nhật TextView ngày lặp
+            if (!anySelected[0] && isChecked) {
+                holder.tvRepeat.setText("Hôm nay");
+            } else if (!anySelected[0]) {
+                holder.tvRepeat.setText("Không lặp");
+            }
         });
 
         // Click item để sửa
@@ -83,6 +107,8 @@ public class BaoThucAdapter extends RecyclerView.Adapter<BaoThucAdapter.BaoThucV
             }
         });
     }
+
+
 
 
     @Override

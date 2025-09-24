@@ -6,6 +6,7 @@ public class BaoThuc {
     private int m; // phút
     private int t2, t3, t4, t5, t6, t7, cn; // ngày lặp
     private int bat; // 0 = tắt, 1 = bật
+    private String ringtoneUri;
 
     // Constructor khi lấy từ database (có id)
     public BaoThuc(int id, int h, int m,
@@ -50,6 +51,8 @@ public class BaoThuc {
     public int getT7() { return t7; }
     public int getCn() { return cn; }
     public int getBat() { return bat; }
+
+    public String getRingtoneUri() { return ringtoneUri; }
     public boolean isActive() { return bat == 1; }
 
     // Setter
@@ -63,6 +66,7 @@ public class BaoThuc {
     public void setT7(int t7) { this.t7 = t7; }
     public void setCn(int cn) { this.cn = cn; }
     public void setBat(int bat) { this.bat = bat; }
+    public void setRingtoneUri(String ringtoneUri) { this.ringtoneUri = ringtoneUri; }
 
     // Hiển thị giờ: "HH:mm"
     public String getTimeString() {
