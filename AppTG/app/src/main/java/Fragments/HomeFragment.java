@@ -44,7 +44,6 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(v, savedInstanceState);
 
         db = new DatabaseHelper(requireContext());
-
         rvEvents = v.findViewById(R.id.rv_events);
         imgAdd = v.findViewById(R.id.img_add);
         calendarView = v.findViewById(R.id.custom_calendar_view);
@@ -57,26 +56,20 @@ public class HomeFragment extends Fragment {
         rvEvents.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
         rvEvents.setAdapter(adapter);
 
-        // nút add
         imgAdd.setOnClickListener(xx -> {
             AddEditEventBottomSheet b = new AddEditEventBottomSheet(this::reloadAndRefreshCalendar);
             b.show(getParentFragmentManager(), "add_event");
         });
 
-        // chọn ngày trên calendar
         calendarView.setDateSelectedListener(selectedDates -> {
             if (selectedDates == null || selectedDates.isEmpty()) return;
             String dateIso = selectedDates.get(0);
 
             List<EventItem> events = db.getEventsByDate(dateIso);
+            if (events == null || events.isEmpty()) return;
+
             AddEditEventBottomSheet b = new AddEditEventBottomSheet(this::reloadAndRefreshCalendar);
-
-            if (events != null && !events.isEmpty()) {
-                b.setEditingEvent(events.get(0));
-            } else {
-                b.setPreselectedDate(dateIso); // cần có trong AddEditEventBottomSheet
-            }
-
+            b.setEditingEvent(events.get(0));
             b.show(getParentFragmentManager(), "event_sheet");
         });
 
@@ -89,18 +82,19 @@ public class HomeFragment extends Fragment {
 
         calendarView.clearAllMarks();
 
+        ArrayList<String> eventDates = new ArrayList<>();
         for (EventItem e : eventList) {
-            String dateIso = e.getDateIso();
-            String hex = e.getColorHex();
-            int bgColor = Color.parseColor(hex);
+            eventDates.add(e.getDateIso());
 
-            boolean isDark = isColorDark(bgColor);
-            int textColor = isDark
+            int bgColor = Color.parseColor(e.getColorHex());
+            int textColor = isColorDark(bgColor)
                     ? requireContext().getResources().getColor(R.color.mautrangnhathon)
                     : requireContext().getResources().getColor(R.color.maunensanghon);
 
-            calendarView.setDayColor(dateIso, bgColor, textColor);
+            calendarView.setDayColor(e.getDateIso(), bgColor, textColor);
         }
+
+        calendarView.setEventDays(eventDates);
     }
 
     private boolean isColorDark(int color) {

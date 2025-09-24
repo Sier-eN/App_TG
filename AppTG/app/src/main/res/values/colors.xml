@@ -11,6 +11,9 @@
     <color name="mauxamnhat">#666666</color>
     <color name="switch_on">#4CAF50</color>
     <color name="soft_red">#FF6B6B</color>
+    <color name="do_dam1">#D32F2F</color>
+    <color name="do_dam2">#C62828</color>
+    <color name="do_dam3">#B71C1C</color>
     <color name="red_soft_medium1">#FF5252</color> <!-- đỏ nhạt vừa, tươi hơn -->
     <color name="red_soft_medium2">#FF4C4C</color> <!-- đỏ ấm, nổi bật hơn nhưng vẫn dịu -->
     <color name="red_soft_medium3">#FF3B3B</color> <!-- đỏ đậm hơn, rõ sắc đỏ -->

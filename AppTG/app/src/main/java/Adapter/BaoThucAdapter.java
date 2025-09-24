@@ -38,6 +38,7 @@ public class BaoThucAdapter extends RecyclerView.Adapter<BaoThucAdapter.BaoThucV
     public BaoThucViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.thebaothuc, parent, false);
         return new BaoThucViewHolder(view);
+
     }
 
     @Override
@@ -51,30 +52,28 @@ public class BaoThucAdapter extends RecyclerView.Adapter<BaoThucAdapter.BaoThucV
                 baoThuc.getT5(), baoThuc.getT6(), baoThuc.getT7(), baoThuc.getCn()};
         String[] tenThu = {"T2", "T3", "T4", "T5", "T6", "T7", "CN"};
 
-        final boolean[] anySelected = {false};
+        int countSelected = 0;
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 7; i++) {
             if (ngayTrongTuan[i] == 1) {
+                countSelected++;
                 if (sb.length() > 0) sb.append(", ");
                 sb.append(tenThu[i]);
-                anySelected[0] = true;
             }
         }
 
-        if (anySelected[0]) {
+        if (countSelected == 7) {
+            holder.tvRepeat.setText("Hằng ngày");
+        } else if (countSelected > 0) {
             holder.tvRepeat.setText(sb.toString());
         } else {
-            // Nếu bật và không chọn ngày, mặc định hôm nay
-            if (baoThuc.isActive()) {
-                holder.tvRepeat.setText("Hôm nay");
-            } else {
-                holder.tvRepeat.setText("Không lặp");
-            }
+            holder.tvRepeat.setText(baoThuc.isActive() ? "Hôm nay" : "Không lặp");
         }
 
         // Switch bật/tắt
         holder.swAlarm.setOnCheckedChangeListener(null);
         holder.swAlarm.setChecked(baoThuc.isActive());
+        int finalCountSelected = countSelected;
         holder.swAlarm.setOnCheckedChangeListener((buttonView, isChecked) -> {
             baoThuc.setBat(isChecked ? 1 : 0);
 
@@ -93,10 +92,12 @@ public class BaoThucAdapter extends RecyclerView.Adapter<BaoThucAdapter.BaoThucV
             }
 
             // Cập nhật TextView ngày lặp
-            if (!anySelected[0] && isChecked) {
-                holder.tvRepeat.setText("Hôm nay");
-            } else if (!anySelected[0]) {
-                holder.tvRepeat.setText("Không lặp");
+            if (finalCountSelected == 7) {
+                holder.tvRepeat.setText("Hằng ngày");
+            } else if (finalCountSelected > 0) {
+                holder.tvRepeat.setText(isChecked ? sb.toString() : "Không lặp");
+            } else {
+                holder.tvRepeat.setText(isChecked ? "Hôm nay" : "Không lặp");
             }
         });
 
@@ -107,6 +108,7 @@ public class BaoThucAdapter extends RecyclerView.Adapter<BaoThucAdapter.BaoThucV
             }
         });
     }
+
 
 
 

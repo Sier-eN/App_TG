@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:padding="8dp"
             android:src="@drawable/add"
-            app:tint="@color/mautrangnhathon"
+            app:tint="@color/white"
             android:contentDescription="Thêm báo thức" />
     </com.google.android.material.card.MaterialCardView>
 
