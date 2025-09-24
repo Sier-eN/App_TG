@@ -21,16 +21,12 @@
         <item name="fontFamily">@font/robotocondensed</item>
     </style>
     <style name="CalendarDate">
-        <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_columnWeight">1</item>
-        <item name="android:layout_rowWeight">1</item>
         <item name="android:gravity">center</item>
-        <item name="android:textSize">14dp</item>
+        <item name="android:textSize">14sp</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:paddingVertical">10dp</item>
         <item name="android:textColor">@color/mautrangnhathon</item>
         <item name="android:background">@drawable/date_background_selector</item>
         <item name="fontFamily">@font/robotocondensed</item>
+        <item name="android:padding">6dp</item>
     </style>
 </resources>

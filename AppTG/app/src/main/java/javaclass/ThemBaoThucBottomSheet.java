@@ -9,42 +9,42 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
-import androidx.fragment.app.FragmentManager;
 
 import com.example.apptg.R;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import Database.DatabaseHelper;
 import item.BaoThuc;
+import javaclass.AlarmCanceler;
+import javaclass.AlarmScheduler;
 
 public class ThemBaoThucBottomSheet extends BottomSheetDialogFragment {
 
     private TimePicker timePicker;
     private ToggleButton tbT2, tbT3, tbT4, tbT5, tbT6, tbT7, tbCN;
     private ImageView imgLuu, imgXoa, imgChonNhac;
-    private CardView cvXoa;
+    private TextView tvTenNhac;
+    private CardView cardChonNhac, cvXoa;
     private DatabaseHelper dbHelper;
     private BaoThuc baoThuc;
 
-    private boolean isViewCreated = false; // để lazy load
-
-    private String selectedRingtoneUri;
     private Ringtone currentRingtone;
+    private String selectedRingtoneUri;
 
-    // Singleton pattern
     public static ThemBaoThucBottomSheet newInstance() {
         return new ThemBaoThucBottomSheet();
     }
 
     public void setBaoThuc(BaoThuc baoThuc) {
         this.baoThuc = baoThuc;
-        if (isViewCreated) {
+        if (getView() != null) {
             loadBaoThucData();
         }
     }
@@ -65,36 +65,30 @@ public class ThemBaoThucBottomSheet extends BottomSheetDialogFragment {
         tbT6 = view.findViewById(R.id.tbT6);
         tbT7 = view.findViewById(R.id.tbT7);
         tbCN = view.findViewById(R.id.tbCN);
+
+        cvXoa = view.findViewById(R.id.cvXoa);
         imgLuu = view.findViewById(R.id.imgLuu);
         imgXoa = view.findViewById(R.id.imgXoa);
-        cvXoa = view.findViewById(R.id.cvXoa);
-        imgChonNhac = view.findViewById(R.id.imgChonNhac); // icon chọn nhạc chuông
 
-        timePicker.setIs24HourView(true);
+        cardChonNhac = view.findViewById(R.id.cardChonNhac);
+        imgChonNhac = view.findViewById(R.id.imgChonNhac);
+        tvTenNhac = view.findViewById(R.id.tvTenNhac);
+
         dbHelper = new DatabaseHelper(getContext());
+        timePicker.setIs24HourView(true);
 
-        imgChonNhac.setOnClickListener(v -> {
-            // Nghe thử nhạc hiện tại
-            if (selectedRingtoneUri != null) {
-                stopRingtone(); // dừng nhạc cũ nếu còn
-                currentRingtone = RingtoneManager.getRingtone(getContext(), Uri.parse(selectedRingtoneUri));
-                currentRingtone.play();
-            }
+        // Click chọn nhạc
+        View.OnClickListener openRingtone = v -> openRingtonePicker();
+        cardChonNhac.setOnClickListener(openRingtone);
+        imgChonNhac.setOnClickListener(openRingtone);
 
-            // Mở RingtonePicker
-            openRingtonePicker();
-        });
-
-
-        // Lắng nghe nút Lưu
+        // Lưu báo thức
         imgLuu.setOnClickListener(v -> saveBaoThuc());
 
-        // Lắng nghe nút Xóa
+        // Xóa báo thức
         imgXoa.setOnClickListener(v -> deleteBaoThuc());
 
-        isViewCreated = true;
-
-        // Lazy load dữ liệu nếu đã set trước đó
+        // Load dữ liệu nếu chỉnh sửa
         if (baoThuc != null) {
             loadBaoThucData();
         } else {
@@ -120,17 +114,20 @@ public class ThemBaoThucBottomSheet extends BottomSheetDialogFragment {
         tbCN.setChecked(baoThuc.getCn() == 1);
 
         selectedRingtoneUri = baoThuc.getRingtoneUri();
+        updateRingtoneName();
+    }
 
-        imgXoa.setVisibility(View.VISIBLE);
-        cvXoa.setVisibility(View.VISIBLE);
+    private void updateRingtoneName() {
+        if (selectedRingtoneUri != null) {
+            Ringtone r = RingtoneManager.getRingtone(getContext(), Uri.parse(selectedRingtoneUri));
+            if (r != null) tvTenNhac.setText(r.getTitle(getContext()));
+        } else {
+            tvTenNhac.setText("Chưa chọn nhạc");
+        }
     }
 
     private void saveBaoThuc() {
-        // Dừng nhạc chuông nếu đang phát
-        if (currentRingtone != null && currentRingtone.isPlaying()) {
-            currentRingtone.stop();
-            currentRingtone = null;
-        }
+        stopRingtone();
 
         int h = timePicker.getHour();
         int m = timePicker.getMinute();
@@ -143,7 +140,6 @@ public class ThemBaoThucBottomSheet extends BottomSheetDialogFragment {
         int cn = tbCN.isChecked() ? 1 : 0;
 
         if (baoThuc != null) {
-            // Update báo thức
             baoThuc.setH(h);
             baoThuc.setM(m);
             baoThuc.setT2(t2);
@@ -157,31 +153,29 @@ public class ThemBaoThucBottomSheet extends BottomSheetDialogFragment {
             baoThuc.setRingtoneUri(selectedRingtoneUri);
             dbHelper.updateBaoThuc(baoThuc);
 
-            javaclass.AlarmCanceler.huyBaoThuc(getContext(), baoThuc);
-            javaclass.AlarmScheduler.datBaoThuc(getContext(), baoThuc);
+            AlarmCanceler.huyBaoThuc(getContext(), baoThuc);
+            AlarmScheduler.datBaoThuc(getContext(), baoThuc);
         } else {
             BaoThuc newBaoThuc = new BaoThuc(h, m, t2, t3, t4, t5, t6, t7, cn, 1);
             newBaoThuc.setRingtoneUri(selectedRingtoneUri);
             long id = dbHelper.insertBaoThuc(newBaoThuc);
             newBaoThuc.setId((int) id);
-            javaclass.AlarmScheduler.datBaoThuc(getContext(), newBaoThuc);
+            AlarmScheduler.datBaoThuc(getContext(), newBaoThuc);
         }
 
         getParentFragmentManager().setFragmentResult("refresh_baothuc", new Bundle());
         dismiss();
     }
 
-
     private void deleteBaoThuc() {
-        stopRingtone(); // dừng nhạc thử
+        stopRingtone();
         if (baoThuc != null) {
             dbHelper.deleteBaoThuc(baoThuc.getId());
-            javaclass.AlarmCanceler.huyBaoThuc(getContext(), baoThuc);
+            AlarmCanceler.huyBaoThuc(getContext(), baoThuc);
             getParentFragmentManager().setFragmentResult("refresh_baothuc", new Bundle());
             dismiss();
         }
     }
-
 
     private void openRingtonePicker() {
         Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
@@ -194,55 +188,55 @@ public class ThemBaoThucBottomSheet extends BottomSheetDialogFragment {
         startActivityForResult(intent, 999);
     }
 
-
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 999 && resultCode == getActivity().RESULT_OK) {
+        if (requestCode == 999 && resultCode == getActivity().RESULT_OK && data != null) {
             Uri uri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
             if (uri != null) {
                 selectedRingtoneUri = uri.toString();
-                // Không gọi playRingtone(uri) nữa
+                updateRingtoneName();
             }
         }
     }
 
-
-
-    private void playRingtone(Uri uri) {
-        // Dừng nhạc thử trước khi phát nhạc mới
-        stopRingtone();
-
-        if (uri != null) {
-            currentRingtone = RingtoneManager.getRingtone(getContext(), uri);
-            if (currentRingtone != null) {
-                currentRingtone.play();
-            }
-        }
-    }
     private void stopRingtone() {
         if (currentRingtone != null && currentRingtone.isPlaying()) {
             currentRingtone.stop();
             currentRingtone = null;
         }
     }
+
     @Override
     public void onPause() {
         super.onPause();
         stopRingtone();
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        stopRingtone();
+    }
 
     @Override
     public void onStart() {
         super.onStart();
+
         View view = getView();
-        if (view != null) {
-            view.getLayoutParams().height = (int)(getResources().getDisplayMetrics().heightPixels * 0.75);
-        }
-    }
-    public void onDestroy() {
-        super.onDestroy();
-        stopRingtone(); // Dừng nhạc thử khi BottomSheet bị đóng
+        if (view == null) return;
+
+        View parent = (View) view.getParent();
+        parent.setBackgroundResource(android.R.color.transparent);
+
+        com.google.android.material.bottomsheet.BottomSheetBehavior<View> behavior =
+                com.google.android.material.bottomsheet.BottomSheetBehavior.from(parent);
+
+        int height = (int) (getResources().getDisplayMetrics().heightPixels * 0.8); // 4/5 màn hình
+        view.getLayoutParams().height = height;
+        view.requestLayout();
+
+        behavior.setPeekHeight(height);
+        behavior.setState(com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED);
     }
 }

@@ -121,14 +121,49 @@
                 android:layout_marginTop="24dp"
                 android:layout_gravity="start"/>
 
-            <ImageView
-                android:id="@+id/imgChonNhac"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardChonNhac"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:src="@drawable/music"
-                android:contentDescription="Chọn nhạc chuông"
-                app:tint="@color/mautrangnhathon"/>
+                android:layout_marginBottom="8dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                app:strokeColor="@android:color/transparent"
+                app:rippleColor="?attr/colorControlHighlight">
+
+                <LinearLayout
+                    android:id="@+id/layoutChonNhac"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@color/maunensanghon"
+                    android:padding="12dp">
+
+                    <ImageView
+                        android:id="@+id/imgChonNhac"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        app:tint="@color/mautrangnhathon"
+                        android:src="@drawable/music"
+                        android:contentDescription="Chọn nhạc"/>
+
+                    <TextView
+                        android:id="@+id/tvTenNhac"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:fontFamily="@font/robotocondensed"
+                        android:layout_weight="1"
+                        android:text="Chưa chọn nhạc"
+                        android:textColor="@color/mautrangnhathon"
+                        android:textSize="16sp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+
+
         </LinearLayout>
     </ScrollView>
 

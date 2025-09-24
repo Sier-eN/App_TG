@@ -10,12 +10,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import item.BaoThuc;
+import item.EventItem; // class model mới (mình sẽ cung cấp)
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DB_NAME = "QuanLyThoiGian.db";
-    private static final int DB_VERSION = 2; // Tăng version lên 2
+    private static final int DB_VERSION = 3; // Tăng lên 3 để migration Events
 
     public static final String TABLE_ALARM = "Alarm";
+
+    // New table for events
+    public static final String TABLE_EVENTS = "Events";
 
     public DatabaseHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -23,7 +27,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String createTable = "CREATE TABLE " + TABLE_ALARM + " (" +
+        // Alarm table (giữ nguyên)
+        String createAlarm = "CREATE TABLE " + TABLE_ALARM + " (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "h INTEGER NOT NULL, " +
                 "m INTEGER NOT NULL, " +
@@ -37,18 +42,39 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "bat INTEGER DEFAULT 0, " +
                 "ringtoneUri TEXT" +
                 ")";
-        db.execSQL(createTable);
+        db.execSQL(createAlarm);
+
+        // Events table
+        String createEvents = "CREATE TABLE " + TABLE_EVENTS + " (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "title TEXT NOT NULL, " +
+                "dateIso TEXT NOT NULL, " + // store yyyy-MM-dd
+                "colorHex TEXT NOT NULL" +   // store color like #RRGGBB or #AARRGGBB
+                ")";
+        db.execSQL(createEvents);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Nếu cũ chưa có cột ringtoneUri thì thêm cột
+        // Nếu cũ chưa có cột ringtoneUri thì thêm (v2)
         if (oldVersion < 2) {
-            db.execSQL("ALTER TABLE " + TABLE_ALARM + " ADD COLUMN ringtoneUri TEXT");
+            try {
+                db.execSQL("ALTER TABLE " + TABLE_ALARM + " ADD COLUMN ringtoneUri TEXT");
+            } catch (Exception ignored) { }
         }
-        // Không xóa bảng cũ nữa để tránh mất dữ liệu
+        // Nếu cũ chưa có bảng Events thì tạo (v3)
+        if (oldVersion < 3) {
+            String createEvents = "CREATE TABLE IF NOT EXISTS " + TABLE_EVENTS + " (" +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "title TEXT NOT NULL, " +
+                    "dateIso TEXT NOT NULL, " +
+                    "colorHex TEXT NOT NULL" +
+                    ")";
+            db.execSQL(createEvents);
+        }
     }
 
+    // ---------------- Alarm methods (giữ nguyên) ----------------
     // Insert
     public long insertBaoThuc(BaoThuc baoThuc) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -88,7 +114,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 int t7 = cursor.getInt(cursor.getColumnIndexOrThrow("t7"));
                 int cn = cursor.getInt(cursor.getColumnIndexOrThrow("cn"));
                 int bat = cursor.getInt(cursor.getColumnIndexOrThrow("bat"));
-                String ringtoneUri = cursor.getString(cursor.getColumnIndexOrThrow("ringtoneUri"));
+                String ringtoneUri = null;
+                int idx = cursor.getColumnIndex("ringtoneUri");
+                if (idx != -1) ringtoneUri = cursor.getString(idx);
 
                 BaoThuc bt = new BaoThuc(id, h, m, t2, t3, t4, t5, t6, t7, cn, bat);
                 bt.setRingtoneUri(ringtoneUri);
@@ -143,7 +171,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             int t7 = cursor.getInt(cursor.getColumnIndexOrThrow("t7"));
             int cn = cursor.getInt(cursor.getColumnIndexOrThrow("cn"));
             int bat = cursor.getInt(cursor.getColumnIndexOrThrow("bat"));
-            String ringtoneUri = cursor.getString(cursor.getColumnIndexOrThrow("ringtoneUri"));
+            String ringtoneUri = null;
+            int idx = cursor.getColumnIndex("ringtoneUri");
+            if (idx != -1) ringtoneUri = cursor.getString(idx);
 
             baoThuc = new BaoThuc(id, h, m, t2, t3, t4, t5, t6, t7, cn, bat);
             baoThuc.setRingtoneUri(ringtoneUri);
@@ -151,5 +181,76 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return baoThuc;
+    }
+
+    // ---------------- Events methods (mới) ----------------
+
+    // Insert event
+    public long insertEvent(EventItem event) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("title", event.getTitle());
+        values.put("dateIso", event.getDateIso());
+        values.put("colorHex", event.getColorHex());
+        long id = db.insert(TABLE_EVENTS, null, values);
+        db.close();
+        return id;
+    }
+
+    // Get all events
+    public List<EventItem> getAllEvents() {
+        List<EventItem> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_EVENTS + " ORDER BY dateIso", null);
+        if (cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(cursor.getColumnIndexOrThrow("id"));
+                String title = cursor.getString(cursor.getColumnIndexOrThrow("title"));
+                String dateIso = cursor.getString(cursor.getColumnIndexOrThrow("dateIso"));
+                String colorHex = cursor.getString(cursor.getColumnIndexOrThrow("colorHex"));
+                EventItem e = new EventItem(id, title, dateIso, colorHex);
+                list.add(e);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return list;
+    }
+
+    // Get events by dateIso (yyyy-MM-dd)
+    public List<EventItem> getEventsByDate(String dateIso) {
+        List<EventItem> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_EVENTS + " WHERE dateIso = ?", new String[]{dateIso});
+        if (cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(cursor.getColumnIndexOrThrow("id"));
+                String title = cursor.getString(cursor.getColumnIndexOrThrow("title"));
+                String colorHex = cursor.getString(cursor.getColumnIndexOrThrow("colorHex"));
+                EventItem e = new EventItem(id, title, dateIso, colorHex);
+                list.add(e);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return list;
+    }
+
+    // Update event
+    public void updateEvent(EventItem event) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("title", event.getTitle());
+        values.put("dateIso", event.getDateIso());
+        values.put("colorHex", event.getColorHex());
+        db.update(TABLE_EVENTS, values, "id=?", new String[]{String.valueOf(event.getId())});
+        db.close();
+    }
+
+    // Delete event
+    public void deleteEvent(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_EVENTS, "id=?", new String[]{String.valueOf(id)});
+        db.close();
     }
 }
