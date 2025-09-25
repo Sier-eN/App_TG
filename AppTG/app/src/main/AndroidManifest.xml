@@ -34,5 +34,6 @@
             android:name="javaclass.BaoThucReceiver"
             android:exported="true"/>
 
+
     </application>
 </manifest>

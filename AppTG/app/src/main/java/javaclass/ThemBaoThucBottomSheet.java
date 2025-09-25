@@ -20,10 +20,10 @@ import androidx.cardview.widget.CardView;
 import com.example.apptg.R;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
+import java.util.Calendar;
+
 import Database.DatabaseHelper;
 import item.BaoThuc;
-import javaclass.AlarmCanceler;
-import javaclass.AlarmScheduler;
 
 public class ThemBaoThucBottomSheet extends BottomSheetDialogFragment {
 
@@ -44,8 +44,13 @@ public class ThemBaoThucBottomSheet extends BottomSheetDialogFragment {
 
     public void setBaoThuc(BaoThuc baoThuc) {
         this.baoThuc = baoThuc;
+
         if (getView() != null) {
-            loadBaoThucData();
+            if (baoThuc != null) {
+                loadBaoThucData();
+            } else {
+                resetViewsForNew();
+            }
         }
     }
 
@@ -56,7 +61,7 @@ public class ThemBaoThucBottomSheet extends BottomSheetDialogFragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_thembaothuc, container, false);
 
-        // Ánh xạ view
+        // Ánh xạ
         timePicker = view.findViewById(R.id.timePicker);
         tbT2 = view.findViewById(R.id.tbT2);
         tbT3 = view.findViewById(R.id.tbT3);
@@ -77,26 +82,45 @@ public class ThemBaoThucBottomSheet extends BottomSheetDialogFragment {
         dbHelper = new DatabaseHelper(getContext());
         timePicker.setIs24HourView(true);
 
-        // Click chọn nhạc
+        // Chọn nhạc
         View.OnClickListener openRingtone = v -> openRingtonePicker();
         cardChonNhac.setOnClickListener(openRingtone);
         imgChonNhac.setOnClickListener(openRingtone);
 
-        // Lưu báo thức
+        // Lưu
         imgLuu.setOnClickListener(v -> saveBaoThuc());
 
-        // Xóa báo thức
+        // Xóa
         imgXoa.setOnClickListener(v -> deleteBaoThuc());
 
-        // Load dữ liệu nếu chỉnh sửa
+        // Load dữ liệu
         if (baoThuc != null) {
             loadBaoThucData();
         } else {
-            imgXoa.setVisibility(View.GONE);
-            cvXoa.setVisibility(View.GONE);
+            resetViewsForNew();
         }
 
         return view;
+    }
+
+    private void resetViewsForNew() {
+        Calendar now = Calendar.getInstance();
+        timePicker.setHour(now.get(Calendar.HOUR_OF_DAY));
+        timePicker.setMinute(now.get(Calendar.MINUTE));
+
+        tbT2.setChecked(false);
+        tbT3.setChecked(false);
+        tbT4.setChecked(false);
+        tbT5.setChecked(false);
+        tbT6.setChecked(false);
+        tbT7.setChecked(false);
+        tbCN.setChecked(false);
+
+        selectedRingtoneUri = null;
+        updateRingtoneName();
+
+        imgXoa.setVisibility(View.GONE);
+        cvXoa.setVisibility(View.GONE);
     }
 
     private void loadBaoThucData() {
@@ -115,6 +139,9 @@ public class ThemBaoThucBottomSheet extends BottomSheetDialogFragment {
 
         selectedRingtoneUri = baoThuc.getRingtoneUri();
         updateRingtoneName();
+
+        imgXoa.setVisibility(View.VISIBLE);
+        cvXoa.setVisibility(View.VISIBLE);
     }
 
     private void updateRingtoneName() {
@@ -232,7 +259,7 @@ public class ThemBaoThucBottomSheet extends BottomSheetDialogFragment {
         com.google.android.material.bottomsheet.BottomSheetBehavior<View> behavior =
                 com.google.android.material.bottomsheet.BottomSheetBehavior.from(parent);
 
-        int height = (int) (getResources().getDisplayMetrics().heightPixels * 0.8); // 4/5 màn hình
+        int height = (int) (getResources().getDisplayMetrics().heightPixels * 0.8);
         view.getLayoutParams().height = height;
         view.requestLayout();
 

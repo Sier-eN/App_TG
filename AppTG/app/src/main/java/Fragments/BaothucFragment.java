@@ -28,7 +28,6 @@ public class BaothucFragment extends Fragment {
     private BaoThucAdapter adapter;
     private DatabaseHelper dbHelper;
     private List<BaoThuc> baoThucList;
-    private ThemBaoThucBottomSheet bottomSheet; // reuse
 
     @Nullable
     @Override
@@ -47,20 +46,21 @@ public class BaothucFragment extends Fragment {
         rvBaoThuc.setLayoutManager(new LinearLayoutManager(getContext()));
         rvBaoThuc.setAdapter(adapter);
 
-        // Tạo 1 instance BottomSheet dùng chung
-        bottomSheet = ThemBaoThucBottomSheet.newInstance();
-
+        // Click thêm mới
         ivAdd.setOnClickListener(v -> {
-            bottomSheet.setBaoThuc(null); // Thêm mới
+            ThemBaoThucBottomSheet bottomSheet = ThemBaoThucBottomSheet.newInstance();
+            bottomSheet.setBaoThuc(null); // tạo mới
             bottomSheet.show(getParentFragmentManager(), "ThemBaoThucBottomSheet");
         });
 
+        // Click sửa báo thức
         adapter.setOnItemClickListener(baoThuc -> {
-            bottomSheet.setBaoThuc(baoThuc); // sửa
+            ThemBaoThucBottomSheet bottomSheet = ThemBaoThucBottomSheet.newInstance();
+            bottomSheet.setBaoThuc(baoThuc); // chỉnh sửa
             bottomSheet.show(getParentFragmentManager(), "ThemBaoThucBottomSheet");
         });
 
-        // Lắng nghe refresh dữ liệu chung
+        // Lắng nghe refresh dữ liệu
         getParentFragmentManager().setFragmentResultListener(
                 "refresh_baothuc", this,
                 (requestKey, bundle) -> refreshData()
@@ -75,4 +75,3 @@ public class BaothucFragment extends Fragment {
         adapter.notifyDataSetChanged();
     }
 }
-
