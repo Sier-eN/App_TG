@@ -1,5 +1,8 @@
 package Fragments;
 
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -15,10 +18,12 @@ import com.example.apptg.CustomCalendar.CustomCalendarView;
 import com.example.apptg.R;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import Adapter.EventAdapter;
 import Database.DatabaseHelper;
+import javaclass.EventAlarmReceiver;
 import javaclass.EventAlarmScheduler;
 import item.EventItem;
 import javaclass.AddEditEventBottomSheet;
@@ -123,4 +128,5 @@ public class HomeFragment extends Fragment {
         double luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
         return luminance < 0.5;
     }
+
 }

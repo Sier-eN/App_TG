@@ -60,7 +60,7 @@ public class BaothucFragment extends Fragment {
             bottomSheet.show(getParentFragmentManager(), "ThemBaoThucBottomSheet");
         });
 
-        // Lắng nghe refresh dữ liệu
+        // Lắng nghe refresh dữ liệu từ BaoThucActivity
         getParentFragmentManager().setFragmentResultListener(
                 "refresh_baothuc", this,
                 (requestKey, bundle) -> refreshData()
@@ -69,7 +69,17 @@ public class BaothucFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Refresh dữ liệu ngay khi fragment hiển thị lại
+        refreshData();
+    }
+
     private void refreshData() {
+        if (dbHelper == null) return;
+        if (baoThucList == null) return;
+
         baoThucList.clear();
         baoThucList.addAll(dbHelper.getAllBaoThuc());
         adapter.notifyDataSetChanged();

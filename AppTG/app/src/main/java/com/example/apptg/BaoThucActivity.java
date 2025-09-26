@@ -107,33 +107,80 @@ public class BaoThucActivity extends AppCompatActivity {
 
     private void stopAlarm() {
         if (ringtone != null && ringtone.isPlaying()) ringtone.stop();
-        if (vibrator != null) vibrator.cancel(); // <-- Hủy rung
+        if (vibrator != null) vibrator.cancel();
 
         stopService(new Intent(this, AlarmService.class));
 
         if (baoThuc != null) {
-            javaclass.AlarmCanceler.huyBaoThuc(this, baoThuc);
+            // Kiểm tra nếu báo thức là "Hôm nay" (không lặp)
+            if (baoThuc.getT2() == 0 && baoThuc.getT3() == 0 && baoThuc.getT4() == 0 &&
+                    baoThuc.getT5() == 0 && baoThuc.getT6() == 0 && baoThuc.getT7() == 0 &&
+                    baoThuc.getCn() == 0) {
+
+                // Set tắt báo thức
+                baoThuc.setBat(0);
+
+                // Cập nhật database
+                DatabaseHelper dbHelper = new DatabaseHelper(this);
+                dbHelper.updateBaoThuc(baoThuc);
+
+                // Hủy báo thức thực tế
+                javaclass.AlarmCanceler.huyBaoThuc(this, baoThuc);
+
+                // Gửi thông báo tới fragment để refresh switch
+                getSupportFragmentManager().setFragmentResult("refresh_baothuc", new Bundle());
+            } else {
+                // Báo thức lặp -> chỉ hủy báo thức hôm nay
+                javaclass.AlarmCanceler.huyBaoThuc(this, baoThuc);
+            }
         }
 
         finish();
     }
+
+
 
 
     private void snoozeAlarm() {
-        // Dừng chuông & rung trong service
+        // Dừng chuông & rung
+        if (ringtone != null && ringtone.isPlaying()) ringtone.stop();
+        if (vibrator != null) vibrator.cancel();
+
         stopService(new Intent(this, AlarmService.class));
 
-        // Thiết lập báo lại 5 phút
         if (baoThuc != null) {
             Calendar cal = Calendar.getInstance();
-            cal.add(Calendar.MINUTE, 5);
-            baoThuc.setH(cal.get(Calendar.HOUR_OF_DAY));
-            baoThuc.setM(cal.get(Calendar.MINUTE));
-            AlarmScheduler.datBaoThuc(this, baoThuc);
+            cal.add(Calendar.MINUTE, 5); // snooze 5 phút
+
+            // Chỉ đặt báo thức lại trong hôm nay nếu không lặp
+            if (baoThuc.getT2() == 0 && baoThuc.getT3() == 0 && baoThuc.getT4() == 0 &&
+                    baoThuc.getT5() == 0 && baoThuc.getT6() == 0 && baoThuc.getT7() == 0 &&
+                    baoThuc.getCn() == 0) {
+
+                // Lưu giờ và phút tạm thời cho snooze
+                BaoThuc snoozeBaoThuc = new BaoThuc(
+                        baoThuc.getH(), baoThuc.getM(),
+                        baoThuc.getT2(), baoThuc.getT3(), baoThuc.getT4(), baoThuc.getT5(),
+                        baoThuc.getT6(), baoThuc.getT7(), baoThuc.getCn(),
+                        baoThuc.getBat()
+                );
+                snoozeBaoThuc.setId(baoThuc.getId());
+                snoozeBaoThuc.setH(cal.get(Calendar.HOUR_OF_DAY));
+                snoozeBaoThuc.setM(cal.get(Calendar.MINUTE));
+                snoozeBaoThuc.setRingtoneUri(baoThuc.getRingtoneUri());
+
+                AlarmScheduler.datBaoThuc(this, snoozeBaoThuc);
+            } else {
+                // Báo thức lặp -> snooze bình thường
+                baoThuc.setH(cal.get(Calendar.HOUR_OF_DAY));
+                baoThuc.setM(cal.get(Calendar.MINUTE));
+                AlarmScheduler.datBaoThuc(this, baoThuc);
+            }
         }
 
         finish();
     }
+
 
 
 

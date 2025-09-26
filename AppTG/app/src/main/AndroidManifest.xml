@@ -5,6 +5,9 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
+    <!-- 👇 Quyền để nhận sự kiện sau khi reboot -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -13,14 +16,17 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppTG">
 
-        <activity android:name=".MainActivity" android:exported="true">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
-        <activity android:name=".BaoThucActivity"
+        <activity
+            android:name=".BaoThucActivity"
             android:excludeFromRecents="true"
             android:showWhenLocked="true"
             android:turnScreenOn="true"
@@ -34,6 +40,17 @@
             android:name="javaclass.BaoThucReceiver"
             android:exported="true"/>
 
-
+        <!-- 👇 BootReceiver để đặt lại alarm sau khi restart -->
+        <receiver
+            android:name="javaclass.BootReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="javaclass.EventAlarmReceiver"
+            android:exported="true"/>
     </application>
 </manifest>
