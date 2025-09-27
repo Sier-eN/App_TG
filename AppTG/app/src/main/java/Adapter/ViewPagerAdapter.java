@@ -25,8 +25,8 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
                 return new BaothucFragment();
             case 2:
                 return new DanhSachTGBFragment();
-            case 3:
-                return new ThemTGBFragment();
+//            case 3:
+//                return new ThemTGBFragment();
             default:
                 return new HomeFragment();
         }
@@ -34,6 +34,6 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
-        return 4;
+        return 3;
     }
 }

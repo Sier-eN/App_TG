@@ -75,13 +75,13 @@ public class MainActivity extends AppCompatActivity {
         menuToPage.put(R.id.home, 0);
         menuToPage.put(R.id.baothuc, 1);
         menuToPage.put(R.id.thoigianbieu, 2);
-        menuToPage.put(R.id.themtgb, 3);
+//        menuToPage.put(R.id.themtgb, 3);
 
         // page -> menuId
         pageToMenu.put(0, R.id.home);
         pageToMenu.put(1, R.id.baothuc);
         pageToMenu.put(2, R.id.thoigianbieu);
-        pageToMenu.put(3, R.id.themtgb);
+//        pageToMenu.put(3, R.id.themtgb);
     }
 
     private void setUpViewPager() {

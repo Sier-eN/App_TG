@@ -29,4 +29,9 @@
         <item name="fontFamily">@font/robotocondensed</item>
         <item name="android:padding">6dp</item>
     </style>
+    <style name="Theme.AppTG.NoActionBar" parent="Theme.AppTG">
+        <item name="android:windowFullscreen">true</item>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+    </style>
 </resources>

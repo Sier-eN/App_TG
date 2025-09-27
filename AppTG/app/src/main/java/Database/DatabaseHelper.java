@@ -9,17 +9,20 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.util.ArrayList;
 import java.util.List;
 
+import item.ActivityItem;
 import item.BaoThuc;
 import item.EventItem; // class model mới (mình sẽ cung cấp)
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DB_NAME = "QuanLyThoiGian.db";
-    private static final int DB_VERSION = 3; // Tăng lên 3 để migration Events
+    private static final int DB_VERSION = 4; // Tăng lên 3 để migration Events
 
     public static final String TABLE_ALARM = "Alarm";
 
     // New table for events
     public static final String TABLE_EVENTS = "Events";
+
+    public static final String TABLE_ACTIVITIES = "Activities";
 
     public DatabaseHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -52,6 +55,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "colorHex TEXT NOT NULL" +   // store color like #RRGGBB or #AARRGGBB
                 ")";
         db.execSQL(createEvents);
+
+        // Bảng mới cho hoạt động
+        String createActivities = "CREATE TABLE " + TABLE_ACTIVITIES + " (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "title TEXT NOT NULL, " +
+                "dateIso TEXT NOT NULL, " +
+                "startTime TEXT, " +
+                "endTime TEXT, " +
+                "colorHex TEXT NOT NULL" +
+                ")";
+        db.execSQL(createActivities);
     }
 
     @Override
@@ -71,6 +85,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     "colorHex TEXT NOT NULL" +
                     ")";
             db.execSQL(createEvents);
+        }
+        if (oldVersion < 5) {
+            String createActivities = "CREATE TABLE IF NOT EXISTS " + TABLE_ACTIVITIES + " (" +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "title TEXT NOT NULL, " +
+                    "dateIso TEXT NOT NULL, " +
+                    "startTime TEXT, " +
+                    "endTime TEXT, " +
+                    "colorHex TEXT NOT NULL" +
+                    ")";
+            db.execSQL(createActivities);
         }
     }
 
@@ -251,6 +276,62 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void deleteEvent(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_EVENTS, "id=?", new String[]{String.valueOf(id)});
+        db.close();
+    }
+
+
+    // ---------------- Activities ----------------
+    public long insertActivity(ActivityItem activity) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("title", activity.getTitle());
+        values.put("dateIso", activity.getDateIso());
+        values.put("startTime", activity.getStartTime());
+        values.put("endTime", activity.getEndTime());
+        values.put("colorHex", activity.getColorHex());
+        long id = db.insert(TABLE_ACTIVITIES, null, values);
+        db.close();
+        return id;
+    }
+
+    public List<ActivityItem> getAllActivities() {
+        List<ActivityItem> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_ACTIVITIES + " ORDER BY dateIso", null);
+        if (cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(cursor.getColumnIndexOrThrow("id"));
+                String title = cursor.getString(cursor.getColumnIndexOrThrow("title"));
+                String dateIso = cursor.getString(cursor.getColumnIndexOrThrow("dateIso"));
+                String startTime = cursor.getString(cursor.getColumnIndexOrThrow("startTime"));
+                String endTime = cursor.getString(cursor.getColumnIndexOrThrow("endTime"));
+                String colorHex = cursor.getString(cursor.getColumnIndexOrThrow("colorHex"));
+                ActivityItem a = new ActivityItem(id, title, dateIso, colorHex);
+                a.setStartTime(startTime);
+                a.setEndTime(endTime);
+                list.add(a);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return list;
+    }
+
+    public void updateActivity(ActivityItem activity) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("title", activity.getTitle());
+        values.put("dateIso", activity.getDateIso());
+        values.put("startTime", activity.getStartTime());
+        values.put("endTime", activity.getEndTime());
+        values.put("colorHex", activity.getColorHex());
+        db.update(TABLE_ACTIVITIES, values, "id=?", new String[]{String.valueOf(activity.getId())});
+        db.close();
+    }
+
+    public void deleteActivity(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_ACTIVITIES, "id=?", new String[]{String.valueOf(id)});
         db.close();
     }
 }

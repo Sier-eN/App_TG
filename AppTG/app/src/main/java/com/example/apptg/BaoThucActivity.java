@@ -1,3 +1,4 @@
+
 package com.example.apptg;
 
 import android.Manifest;
@@ -62,7 +63,7 @@ public class BaoThucActivity extends AppCompatActivity {
                         PERMISSION_REQUEST_CODE);
             }
         }
-        
+
         vibratePhone();
 
         btnStop.setOnClickListener(v -> stopAlarm());

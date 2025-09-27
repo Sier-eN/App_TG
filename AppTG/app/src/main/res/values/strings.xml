@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">AppTG</string>
-    <string name="home">Home</string>
-    <string name="thoigianbieu">Thời Gian Biểu</string>
+    <string name="home">Sự Kiện</string>
+    <string name="thoigianbieu">Hoạt Động</string>
     <string name="baothuc">Báo Thức</string>
     <string name="themtgb">Thêm TGB</string>
     <!-- TODO: Remove or change this placeholder text -->
